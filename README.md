@@ -23,6 +23,11 @@ Lightweight Express API (pnpm) to search and fetch Salesforce Knowledge articles
    ```
    Server listens on `http://localhost:3000` by default.
 
+## Logging
+- Request logs are printed to the console with basic color coding.
+- When `/articles/search` returns results, the server logs a green "Found N article(s)" line; no results logs a yellow line.
+- Control verbosity with `LOG_LEVEL` (`debug`, `info`, `warn`, `error`, `silent`).
+
 ## Endpoints
 - `GET /articles/search?q=printer&limit=20`
   - Searches published Knowledge articles by title in the configured language.
