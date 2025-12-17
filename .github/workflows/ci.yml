@@ -35,7 +35,7 @@ jobs:
         run: pnpm run lint
 
       - name: Check formatting with Prettier
-        run: pnpm run format -- --check
+        run: npx prettier --check .
 
   dependency-audit:
     runs-on: ubuntu-latest

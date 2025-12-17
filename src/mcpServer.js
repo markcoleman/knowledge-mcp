@@ -1,5 +1,9 @@
 const { Server } = require('@modelcontextprotocol/sdk/server');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const {
+  ListToolsRequestSchema,
+  CallToolRequestSchema,
+} = require('@modelcontextprotocol/sdk/types.js');
 const config = require('./config');
 const salesforceClient = require('./services/salesforceClient');
 const { logger } = require('./lib/logger');
@@ -21,7 +25,7 @@ const server = new Server(
 );
 
 // Register the search articles tool
-server.setRequestHandler('tools/list', async () => {
+server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
@@ -66,7 +70,7 @@ server.setRequestHandler('tools/list', async () => {
 });
 
 // Handle tool calls
-server.setRequestHandler('tools/call', async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
