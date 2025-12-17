@@ -1,0 +1,27 @@
+# Copilot Instructions
+
+- Repo is currently empty of source; only secrets exclusion in [.gitignore](.gitignore). Do not commit .env or secrets.
+- Ask the user to confirm target language/runtime, package manager, and deployment platform before scaffolding files.
+- Ask for service purpose, expected APIs/CLIs, and data inputs/outputs to shape folder layout.
+- Clarify whether this should be a mono-repo or single service and how components should be named.
+- Confirm testing framework and coverage expectations up front to wire tests with initial scaffolding.
+- Once stack is known, pin dependencies with the chosen tool and commit the lockfile.
+- Produce a `.env.example` that documents required variables once they are known; keep `.env` out of version control per [.gitignore](.gitignore).
+- Document setup and run commands in README after first scaffold; keep instructions copy-pasteable for macOS.
+- Keep macOS-specific notes for any tooling that differs from Linux (path quoting, gsed vs sed, brew installs).
+- Prefer small, composable modules; keep interfaces thin and avoid hidden globals.
+- For new APIs, define request/response schemas near the handler and include sample payloads in tests or docs.
+- If building an HTTP service, expose a health endpoint plus structured logging and a stable error shape agreed with the user.
+- If building a CLI, include `--help` output examples and test main flows.
+- Add formatting/linting config once stack is chosen; note commands in README and CI if requested.
+- When introducing external services (databases, queues, third-party APIs), note local dev strategy (containers, mocks) and required ports.
+- Confirm logging library/format preference early so logs remain consistent across components.
+- If adding CI, capture the exact test/build command and artifacts; keep CI fast and deterministic.
+- Ask for domain terminology and sample data to align naming and type models with business language.
+- Keep changesets small; narrate major decisions in PR descriptions and update this file when norms evolve.
+- Re-ask for missing requirements rather than guessing when the repo lacks prior art.
+- Current stack: Node.js 18+ with Express, pnpm for packages. Scripts: `pnpm dev`/`pnpm start`.
+- Install deps with `pnpm install`; commit `pnpm-lock.yaml` when generated. `.env` stays untracked per [.gitignore](.gitignore); use [.env.example](../.env.example) as reference.
+- Salesforce Knowledge via SOQL over REST. Auth uses OAuth client credentials against `SALESFORCE_LOGIN_URL` (default login.salesforce.com) with `SALESFORCE_CLIENT_ID`/`SALESFORCE_CLIENT_SECRET`. Token cached until near expiry.
+- Default article object `Knowledge__kav`; override via `SALESFORCE_ARTICLE_OBJECT`. Language filter defaults `en_US` from `SALESFORCE_KNOWLEDGE_LANGUAGE`. API version default `60.0`.
+- API endpoints: `GET /articles/search?q=term&limit=20` (title LIKE search) and `GET /articles/:id` (15-18 char Id). Responses are JSON: `{ data }` on success, `{ error: { message } }` on failure. Health check at `/health`.

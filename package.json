@@ -1,0 +1,29 @@
+{
+  "name": "knowledge-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Express API for Salesforce Knowledge articles",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon",
+    "lint": "eslint .",
+    "format": "prettier -w ."
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "kleur": "^4.1.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.4.2"
+  }
+}
