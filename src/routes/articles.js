@@ -1,5 +1,5 @@
 const express = require('express');
-const salesforceClient = require('../salesforceClient');
+const salesforceClient = require('../services/salesforceClient');
 
 const router = express.Router();
 
