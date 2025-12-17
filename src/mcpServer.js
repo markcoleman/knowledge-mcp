@@ -1,4 +1,4 @@
-const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
+const { Server } = require('@modelcontextprotocol/sdk/server');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
 const config = require('./config');
 const salesforceClient = require('./services/salesforceClient');
