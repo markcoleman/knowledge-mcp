@@ -35,6 +35,9 @@ Both endpoints return `{ data: ... }` on success and `{ error: { message } }` on
 - SOQL queries use the `Knowledge__kav` object by default; override with `SALESFORCE_ARTICLE_OBJECT` if your org differs.
 - Token retrieval uses the OAuth 2.0 JWT Bearer grant against `SALESFORCE_LOGIN_URL` and caches until near expiry.
 - Language filter defaults to `en_US` via `SALESFORCE_KNOWLEDGE_LANGUAGE`.
+- Article body field defaults to `ArticleBody`; override with `SALESFORCE_ARTICLE_BODY_FIELD` if your article type uses a different rich text/answer field.
+- Add extra fields to query with `SALESFORCE_ARTICLE_ADDITIONAL_FIELDS` (comma-separated, e.g., `Content__c,Question__c`).
+- To return every queryable field from the article object, set `SALESFORCE_ARTICLE_SELECT_ALL_FIELDS=true` (uses the object describe; may increase payload size).
 
 ## JWT setup quickstart
 
@@ -48,3 +51,16 @@ Both endpoints return `{ data: ... }` on success and `{ error: { message } }` on
    - Enable OAuth settings with the JWT Bearer flow.
    - Add the user specified in `SALESFORCE_USERNAME` to the app's profile/permission set.
 3) Run the API using the `.env` values described above.
+
+
+- setup the user
+- assign permissions
+- connected app
+- cert upload
+- permisssion set
+- assign user to permission set
+- assign permission set to the connected app
+- assign knowledge manager to integration user
+- if your article type uses a custom body field, set `SALESFORCE_ARTICLE_BODY_FIELD` in `.env`
+- if you want additional fields returned (e.g., `Content__c`, `Question__c`), set `SALESFORCE_ARTICLE_ADDITIONAL_FIELDS`
+- set `SALESFORCE_ARTICLE_SELECT_ALL_FIELDS=true` if you want every queryable field returned

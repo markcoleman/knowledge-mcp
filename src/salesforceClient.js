@@ -9,6 +9,46 @@ let instanceUrl = null;
 
 const TOKEN_EXPIRY_BUFFER_MS = 60 * 1000; // Refresh 1 minute before expiry.
 
+// Fixed list of fields to select from the Knowledge object.
+const ARTICLE_FIELDS = [
+  'Id',
+  'ArchivedById',
+  'ArchivedDate',
+  'ArticleArchivedById',
+  'ArticleArchivedDate',
+  'ArticleCaseAttachCount',
+  'ArticleCreatedById',
+  'ArticleCreatedDate',
+  'ArticleNumber',
+  'ArticleTotalViewCount',
+  'AssignedById',
+  'AssignedToId',
+  'AssignmentDate',
+  'AssignmentDueDate',
+  'AssignmentNote',
+  'Content__c',
+  'CreatedById',
+  'CreatedDate',
+  'DigitalEngagementResponse__c',
+  'FirstPublishedDate',
+  'InternalNotes__c',
+  'IsLatestVersion',
+  'Language',
+  'LargeLanguageModel',
+  'LastModifiedById',
+  'LastModifiedDate',
+  'LastPublishedDate',
+  'NextReviewDate',
+  'OwnerId',
+  'PublishStatus',
+  'Question__c',
+  'Summary',
+  'Title',
+  'UrlName',
+  'ValidationStatus',
+  'VersionNumber',
+];
+
 let privateKeyCache = null;
 
 function getPrivateKey() {
@@ -115,6 +155,10 @@ function sanitizeQueryTerm(term) {
   return term.replace(/['\\]/g, '').trim();
 }
 
+function getArticleFields() {
+  return ARTICLE_FIELDS;
+}
+
 async function searchArticles({ term, limit }) {
   if (!term || !term.trim()) {
     throw new Error('Search term is required');
@@ -122,7 +166,7 @@ async function searchArticles({ term, limit }) {
 
   const safeTerm = sanitizeQueryTerm(term);
   const limitValue = Math.min(Math.max(Number(limit) || config.defaultSearchLimit, 1), config.maxSearchLimit);
-  const fields = ['Id', 'Title', 'UrlName', 'Summary', 'LastPublishedDate'];
+  const fields = getArticleFields();
 
   const soql = `SELECT ${fields.join(', ')} FROM ${config.articleObjectApiName} WHERE PublishStatus = 'Online' AND Language = '${config.knowledgeLanguage}' AND Title LIKE '%${safeTerm}%' ORDER BY LastPublishedDate DESC LIMIT ${limitValue}`;
 
@@ -135,7 +179,8 @@ async function getArticleById(id) {
     throw new Error('A valid Salesforce article Id (15-18 alphanumeric chars) is required');
   }
 
-  const fields = ['Id', 'Title', 'UrlName', 'Summary', 'LastPublishedDate', 'ArticleBody'];
+  const fields = getArticleFields();
+
   const soql = `SELECT ${fields.join(', ')} FROM ${config.articleObjectApiName} WHERE PublishStatus = 'Online' AND Language = '${config.knowledgeLanguage}' AND Id = '${id}' LIMIT 1`;
 
   const data = await executeSoql(soql);
