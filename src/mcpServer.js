@@ -1,5 +1,8 @@
+const express = require('express');
 const { Server } = require('@modelcontextprotocol/sdk/server');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const {
+  StreamableHTTPServerTransport,
+} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {
   ListToolsRequestSchema,
   CallToolRequestSchema,
@@ -10,6 +13,9 @@ const { logger } = require('./lib/logger');
 
 // Validate configuration before starting MCP server
 config.validate();
+
+// Create HTTP transport for MCP
+const transport = new StreamableHTTPServerTransport();
 
 // Create MCP server instance
 const server = new Server(
@@ -145,25 +151,46 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-// Start the server with stdio transport
+// Create Express app for MCP server
+const app = express();
+app.use(express.json());
+
+// MCP endpoint - handles both GET (SSE) and POST (messages)
+app.all('/mcp', (req, res) => {
+  transport.handleRequest(req, res, req.body);
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', type: 'mcp-server' });
+});
+
+// Start the HTTP server
 async function startMcpServer() {
-  const transport = new StdioServerTransport();
   await server.connect(transport);
-  logger.info('MCP server started on stdio');
+
+  const port = process.env.MCP_PORT || 3001;
+  const httpServer = app.listen(port, () => {
+    logger.info(`MCP server listening on http://localhost:${port}/mcp`);
+  });
+
+  // Handle process termination
+  process.on('SIGINT', async () => {
+    logger.info('MCP server shutting down...');
+    await server.close();
+    httpServer.close(() => {
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGTERM', async () => {
+    logger.info('MCP server shutting down...');
+    await server.close();
+    httpServer.close(() => {
+      process.exit(0);
+    });
+  });
 }
-
-// Handle process termination
-process.on('SIGINT', async () => {
-  logger.info('MCP server shutting down...');
-  await server.close();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  logger.info('MCP server shutting down...');
-  await server.close();
-  process.exit(0);
-});
 
 // Start the server
 startMcpServer().catch((error) => {

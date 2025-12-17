@@ -19,7 +19,7 @@ Lightweight API to search and fetch Salesforce Knowledge articles via SOQL over 
    ```sh
    pnpm install
    ```
-3. Run the HTTP server:
+3. Run the HTTP API server:
 
    ```sh
    pnpm dev
@@ -31,7 +31,7 @@ Lightweight API to search and fetch Salesforce Knowledge articles via SOQL over 
    ```sh
    pnpm start:mcp
    ```
-   MCP server runs on stdio for integration with MCP clients.
+   MCP server listens on `http://localhost:3001/mcp` by default. Set `MCP_PORT` to change the port.
 
 ## Logging
 
@@ -63,23 +63,24 @@ The MCP server exposes the same functionality through two tools:
 
 ### MCP Client Configuration
 
-To use this server with an MCP client (e.g., Claude Desktop), add to your client config:
+The MCP server runs as an HTTP server. To connect an MCP client:
+
+1. Start the MCP server: `pnpm start:mcp`
+2. Configure your MCP client to connect to `http://localhost:3001/mcp`
+
+Example for Claude Desktop or other MCP clients that support HTTP transport:
 
 ```json
 {
   "mcpServers": {
     "knowledge-mcp": {
-      "command": "node",
-      "args": ["/absolute/path/to/knowledge-mcp/src/mcpServer.js"],
-      "env": {
-        "SALESFORCE_CLIENT_ID": "your_client_id",
-        "SALESFORCE_USERNAME": "your_username",
-        "SALESFORCE_JWT_KEY_PATH": "/absolute/path/to/sf_jwt.key"
-      }
+      "url": "http://localhost:3001/mcp"
     }
   }
 }
 ```
+
+The server uses the Streamable HTTP transport, which supports both SSE streaming and direct HTTP responses.
 
 ## Notes
 
