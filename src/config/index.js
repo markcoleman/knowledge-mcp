@@ -16,8 +16,7 @@ const config = {
   apiVersion: process.env.SALESFORCE_API_VERSION || '60.0',
   clientId: process.env.SALESFORCE_CLIENT_ID || '',
   jwtUsername: process.env.SALESFORCE_USERNAME || '',
-  jwtKeyPath:
-    process.env.SALESFORCE_JWT_KEY_PATH || path.join(process.cwd(), 'sf_jwt.key'),
+  jwtKeyPath: process.env.SALESFORCE_JWT_KEY_PATH || path.join(process.cwd(), 'sf_jwt.key'),
   knowledgeLanguage: process.env.SALESFORCE_KNOWLEDGE_LANGUAGE || 'en_US',
   articleObjectApiName: process.env.SALESFORCE_ARTICLE_OBJECT || 'Knowledge__kav',
   articleAdditionalFields: process.env.SALESFORCE_ARTICLE_ADDITIONAL_FIELDS || '',
@@ -37,7 +36,7 @@ const config = {
 
     if (!config.jwtKeyPath) {
       throw new Error(
-        'Missing Salesforce JWT key path. Set SALESFORCE_JWT_KEY_PATH or place sf_jwt.key in project root.'
+        'Missing Salesforce JWT key path. Set SALESFORCE_JWT_KEY_PATH or place sf_jwt.key in project root.',
       );
     }
 

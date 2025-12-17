@@ -1,34 +1,46 @@
 # Knowledge MCP API
 
-Lightweight Express API (pnpm) to search and fetch Salesforce Knowledge articles via SOQL over REST.
+Lightweight API to search and fetch Salesforce Knowledge articles via SOQL over REST. Exposes endpoints via both HTTP (Express) and MCP (Model Context Protocol).
 
 ## Prereqs
+
 - Node.js 18+ (tested with 20)
 - pnpm installed (`npm install -g pnpm` if needed)
 - Salesforce Connected App configured for JWT Bearer (server-to-server) with the `sf_jwt.crt` certificate uploaded
 
 ## Setup
-1) Copy env template and fill in credentials:
+
+1. Copy env template and fill in credentials:
    ```sh
    cp .env.example .env
    # edit .env with SALESFORCE_CLIENT_ID, SALESFORCE_USERNAME, and SALESFORCE_JWT_KEY_PATH (defaults to ./sf_jwt.key)
    ```
-2) Install deps:
+2. Install deps:
    ```sh
    pnpm install
    ```
-3) Run locally:
+3. Run the HTTP server:
+
    ```sh
    pnpm dev
    ```
+
    Server listens on `http://localhost:3000` by default.
 
+4. Or run the MCP server:
+   ```sh
+   pnpm start:mcp
+   ```
+   MCP server runs on stdio for integration with MCP clients.
+
 ## Logging
+
 - Request logs are printed to the console with basic color coding.
 - When `/articles/search` returns results, the server logs a green "Found N article(s)" line; no results logs a yellow line.
 - Control verbosity with `LOG_LEVEL` (`debug`, `info`, `warn`, `error`, `silent`).
 
-## Endpoints
+## HTTP Endpoints
+
 - `GET /articles/search?q=printer&limit=20`
   - Searches published Knowledge articles by title in the configured language.
 - `GET /articles/:id`
@@ -36,7 +48,41 @@ Lightweight Express API (pnpm) to search and fetch Salesforce Knowledge articles
 
 Both endpoints return `{ data: ... }` on success and `{ error: { message } }` on failure.
 
+## MCP Tools
+
+The MCP server exposes the same functionality through two tools:
+
+- **search_articles**: Search Salesforce Knowledge articles by title
+  - Parameters:
+    - `q` (required): Search term to match against article titles
+    - `limit` (optional): Maximum number of results (1-50, default 20)
+
+- **get_article**: Fetch a single Salesforce Knowledge article by ID
+  - Parameters:
+    - `id` (required): Salesforce article ID (15-18 alphanumeric characters)
+
+### MCP Client Configuration
+
+To use this server with an MCP client (e.g., Claude Desktop), add to your client config:
+
+```json
+{
+  "mcpServers": {
+    "knowledge-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/knowledge-mcp/src/mcpServer.js"],
+      "env": {
+        "SALESFORCE_CLIENT_ID": "your_client_id",
+        "SALESFORCE_USERNAME": "your_username",
+        "SALESFORCE_JWT_KEY_PATH": "/absolute/path/to/sf_jwt.key"
+      }
+    }
+  }
+}
+```
+
 ## Notes
+
 - SOQL queries use the `Knowledge__kav` object by default; override with `SALESFORCE_ARTICLE_OBJECT` if your org differs.
 - Token retrieval uses the OAuth 2.0 JWT Bearer grant against `SALESFORCE_LOGIN_URL` and caches until near expiry.
 - Language filter defaults to `en_US` via `SALESFORCE_KNOWLEDGE_LANGUAGE`.
@@ -46,17 +92,16 @@ Both endpoints return `{ data: ... }` on success and `{ error: { message } }` on
 
 ## JWT setup quickstart
 
-1) Generate keypair (private key stays local, cert uploaded to the Connected App):
+1. Generate keypair (private key stays local, cert uploaded to the Connected App):
    ```sh
    openssl genrsa -out sf_jwt.key 2048
    openssl req -new -x509 -key sf_jwt.key -out sf_jwt.crt -days 3650 -subj "/CN=sf-jwt"
    ```
-2) In Salesforce, edit the Connected App:
+2. In Salesforce, edit the Connected App:
    - Upload `sf_jwt.crt` under "Use digital signatures for OAuth".
    - Enable OAuth settings with the JWT Bearer flow.
    - Add the user specified in `SALESFORCE_USERNAME` to the app's profile/permission set.
-3) Run the API using the `.env` values described above.
-
+3. Run the API using the `.env` values described above.
 
 - setup the user
 - assign permissions

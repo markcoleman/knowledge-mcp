@@ -15,7 +15,7 @@ function requestLogger() {
             ? kleur.yellow(String(status))
             : kleur.green(String(status));
       const line = `${kleur.dim(req.method)} ${req.originalUrl} ${statusColored} ${kleur.gray(
-        `${ms}ms`
+        `${ms}ms`,
       )}`;
 
       // Keep logs quiet for health checks.
