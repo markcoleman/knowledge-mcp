@@ -134,13 +134,6 @@ function sanitizeQueryTerm(term) {
   return term.replace(/['\\]/g, '').trim();
 }
 
-function parseAdditionalFields(csv) {
-  return String(csv || '')
-    .split(',')
-    .map((f) => f.trim())
-    .filter(Boolean);
-}
-
 async function describeAllFields() {
   if (describedFieldCache) {
     return describedFieldCache;
