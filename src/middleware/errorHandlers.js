@@ -9,7 +9,7 @@ function notFoundHandler() {
 }
 
 function errorHandler() {
-  return (err, req, res, next) => {
+  return (err, req, res) => {
     const status = err.statusCode || err.status || 500;
     res.status(status).json({
       error: {

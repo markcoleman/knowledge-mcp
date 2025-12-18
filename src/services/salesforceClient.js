@@ -21,7 +21,7 @@ function getPrivateKey() {
   // config.validate() checks existence, but keep this defensive for unit usage.
   if (!config.jwtKeyPath) {
     throw new Error(
-      'Missing Salesforce JWT key path. Set SALESFORCE_JWT_KEY_PATH or place sf_jwt.key in project root.'
+      'Missing Salesforce JWT key path. Set SALESFORCE_JWT_KEY_PATH or place sf_jwt.key in project root.',
     );
   }
 
@@ -85,11 +85,9 @@ async function fetchAccessToken() {
   } catch (error) {
     const status = error.response?.status;
     const message =
-      error.response?.data?.error_description ||
-      error.response?.data?.error ||
-      error.message;
+      error.response?.data?.error_description || error.response?.data?.error || error.message;
     throw new Error(
-      `Failed to fetch Salesforce access token${status ? ` (${status})` : ''}: ${message}`
+      `Failed to fetch Salesforce access token${status ? ` (${status})` : ''}: ${message}`,
     );
   }
 }
@@ -122,9 +120,7 @@ async function salesforceGet(pathname, { params } = {}) {
   } catch (error) {
     const status = error.response?.status;
     const message =
-      error.response?.data?.[0]?.message ||
-      error.response?.data?.message ||
-      error.message;
+      error.response?.data?.[0]?.message || error.response?.data?.message || error.message;
     throw new Error(`Salesforce request failed${status ? ` (${status})` : ''}: ${message}`);
   }
 }
@@ -138,29 +134,20 @@ function sanitizeQueryTerm(term) {
   return term.replace(/['\\]/g, '').trim();
 }
 
-function parseAdditionalFields(csv) {
-  return String(csv || '')
-    .split(',')
-    .map((f) => f.trim())
-    .filter(Boolean);
-}
-
 async function describeAllFields() {
   if (describedFieldCache) {
     return describedFieldCache;
   }
 
   const data = await salesforceGet(
-    `/services/data/v${config.apiVersion}/sobjects/${config.articleObjectApiName}/describe`
+    `/services/data/v${config.apiVersion}/sobjects/${config.articleObjectApiName}/describe`,
   );
 
-  const fields = Array.isArray(data.fields)
-    ? data.fields.map((f) => f?.name).filter(Boolean)
-    : [];
+  const fields = Array.isArray(data.fields) ? data.fields.map((f) => f?.name).filter(Boolean) : [];
 
   if (!fields.length) {
     throw new Error(
-      `No fields found from describe for ${config.articleObjectApiName}. Check object name/permissions.`
+      `No fields found from describe for ${config.articleObjectApiName}. Check object name/permissions.`,
     );
   }
 
@@ -180,7 +167,6 @@ async function getArticleFields() {
     'ArticleNumber',
   ];
 
-
   if (config.articleSelectAllFields) {
     const described = await describeAllFields();
     // Keep stable ordering (describe order), de-dupe for safety.
@@ -198,7 +184,7 @@ async function searchArticles({ term, limit }) {
   const safeTerm = sanitizeQueryTerm(String(term));
   const limitValue = Math.min(
     Math.max(Number(limit) || config.defaultSearchLimit, 1),
-    config.maxSearchLimit
+    config.maxSearchLimit,
   );
 
   const fields = await getArticleFields();
@@ -211,7 +197,10 @@ async function searchArticles({ term, limit }) {
 
 async function getArticleById(id) {
   if (!id || !/^[A-Za-z0-9]{15,18}$/.test(id)) {
-    throw createHttpError(400, 'A valid Salesforce article Id (15-18 alphanumeric chars) is required');
+    throw createHttpError(
+      400,
+      'A valid Salesforce article Id (15-18 alphanumeric chars) is required',
+    );
   }
 
   const fields = await getArticleFields();
